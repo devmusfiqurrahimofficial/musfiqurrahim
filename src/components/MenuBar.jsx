@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { BatteryFull, Moon, Search, Sun, Wifi } from 'lucide-react'
-import { AppleLogo } from './BrandIcons.jsx'
+import { MonogramLogo } from './BrandIcons.jsx'
 
 function useClock() {
   const [now, setNow] = useState(() => new Date())
@@ -63,7 +63,7 @@ export default function MenuBar({ activeTitle, apps, openApp, closeActive, close
   const menus = [
     {
       id: 'apple',
-      label: <AppleLogo className="h-3.5 w-3.5" />,
+      label: <MonogramLogo className="h-3.5 w-3.5" />,
       items: [
         { label: 'About This Portfolio', action: () => openApp('about') },
         '-',
