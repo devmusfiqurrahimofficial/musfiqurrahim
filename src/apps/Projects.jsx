@@ -34,7 +34,8 @@ function Preview({ project }) {
 }
 
 export default function Projects() {
-  const { projects } = usePortfolio()
+  const { projects: allProjects = [] } = usePortfolio()
+  const projects = allProjects ?? []
   const categories = ['All', ...new Set(projects.map((p) => p.category))]
   const [category, setCategory] = useState('All')
   const shown = category === 'All' ? projects : projects.filter((p) => p.category === category)
@@ -86,7 +87,7 @@ export default function Projects() {
                 <h3 className="font-semibold text-slate-800 dark:text-slate-100">{p.name}</h3>
                 <p className="selectable mt-1 flex-1 text-[13px] leading-snug text-slate-500 dark:text-slate-400">{p.description}</p>
                 <div className="mt-2 flex flex-wrap gap-1">
-                  {p.tags.map((t) => (
+                  {(p.tags ?? []).map((t) => (
                     <span key={t} className="rounded bg-sky-50 dark:bg-sky-400/10 px-1.5 py-0.5 text-[11px] text-sky-700 dark:text-sky-300">
                       {t}
                     </span>

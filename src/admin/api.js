@@ -17,13 +17,15 @@ export const setUnauthorizedHandler = (fn) => {
 export async function api(path, { method = 'GET', body } = {}) {
   // Firebase refreshes the ID token itself (they last an hour), so ask for it on every request.
   const token = await auth?.currentUser?.getIdToken()
+  // FormData (file uploads) is sent as-is so the browser sets the multipart boundary.
+  const isForm = body instanceof FormData
   const headers = {}
-  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
   if (token) headers.Authorization = `Bearer ${token}`
 
   let res
   try {
-    res = await fetch(`${API_URL}/api${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+    res = await fetch(`${API_URL}/api${path}`, { method, headers, body: body === undefined || isForm ? body : JSON.stringify(body) })
   } catch {
     throw new ApiError(0, "Can't reach the server. Is it running?")
   }

@@ -12,6 +12,7 @@ export const profileSchema = {
   stats: list(object({ label: string({ max: 40, required: true }), value: string({ max: 20, required: true }) }), { max: 6 }),
   email: email(),
   socials: object({ github: url(), linkedin: url() }),
+  image: url(),
 }
 
 export const projectSchema = {

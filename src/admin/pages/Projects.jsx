@@ -19,7 +19,7 @@ function Thumb({ project, className = '' }) {
 
 function ProjectForm({ initial, categories, onClose, onSaved }) {
   const { toast } = useUi()
-  const [form, setForm] = useState({ ...BLANK, ...initial })
+  const [form, setForm] = useState({ ...BLANK, ...initial, tags: initial.tags ?? [] })
   const [errors, setErrors] = useState({})
   const [busy, setBusy] = useState(false)
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
@@ -128,7 +128,7 @@ export default function ProjectsPage() {
   const categories = [...new Set(projects.map((p) => p.category))].sort()
   const q = query.trim().toLowerCase()
   const filtered = projects.filter(
-    (p) => (!category || p.category === category) && (!q || [p.name, p.description, ...p.tags].some((s) => s.toLowerCase().includes(q)))
+    (p) => (!category || p.category === category) && (!q || [p.name, p.description, ...(p.tags ?? [])].some((s) => s?.toLowerCase().includes(q)))
   )
   // Moving rows only makes sense when the whole list is visible.
   const canReorder = !q && !category
@@ -200,7 +200,7 @@ export default function ProjectsPage() {
                   <h3 className="truncate font-semibold text-slate-800 dark:text-slate-100">{p.name}</h3>
                   <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:text-sky-300">{p.category}</span>
                 </div>
-                <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{p.description || p.tags.join(' · ')}</p>
+                <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{p.description || (p.tags ?? []).join(' · ')}</p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 {p.demo && (

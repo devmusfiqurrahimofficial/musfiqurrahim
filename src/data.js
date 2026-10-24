@@ -232,6 +232,7 @@ export const profile = {
     github: 'https://github.com/devmusfiqurrahimofficial',
     linkedin: 'https://www.linkedin.com/in/musfiqur-rahim',
   },
+  image: '/profile.jpg',
 }
 
 export const skills = [
