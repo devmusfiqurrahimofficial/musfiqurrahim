@@ -14,7 +14,7 @@ import { collectionRouter, portfolioRouter, profileRouter, toolsRouter } from '.
 import { messagesRouter } from './routes/messages.js'
 import { mailRouter } from './routes/mail.js'
 import { sendMailRouter } from './routes/sendmail.js'
-import { profileImageRouter } from './routes/profileImage.js'
+import { profileImageRouter, uploadsRouter } from './routes/profileImage.js'
 
 try {
   await connectDb()
@@ -35,6 +35,7 @@ app.use((req, res, next) => {
   next()
 })
 app.use('/api', cors({ origin: config.corsOrigins }))
+// Images uploaded before they moved into MongoDB.
 app.use('/uploads', express.static(path.resolve(process.cwd(), 'public/uploads')))
 app.use(express.json({ limit: '100kb' }))
 
@@ -62,6 +63,7 @@ app.use('/api/messages', messagesRouter())
 app.use('/api/mail', mailRouter())
 app.use('/api/send-mail', sendMailRouter())
 app.use('/api/profile-image', profileImageRouter())
+app.use('/api/uploads', uploadsRouter())
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }))
 
 // In production the built frontend is served from here too. It's one React Router app

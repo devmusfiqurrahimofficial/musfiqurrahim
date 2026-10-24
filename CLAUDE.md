@@ -48,7 +48,7 @@ There is no test suite, linter, or formatter configured.
 
 Express 5 (async errors reach the error handler without try/catch), MongoDB through the official `mongodb` driver (no Mongoose: `src/schemas.js` is the only place fields are defined). `src/index.js` connects first and exits with a clear message if MongoDB is unreachable (`MONGODB_URI`, default `mongodb://127.0.0.1:27017/portfolio`).
 
-**Data model** (`src/db.js`): collections `projects`, `skills` (one document per skill group), `commands` (custom Terminal commands, unique `name`), `messages` (contact form; admin-only) and `settings`, which holds single documents with string ids: `profile`, `tools` (`{ tools: [] }`) and `meta` (`updatedAt`, bumped by `touch()` after every write). Projects and skill groups carry an internal `order` field. `toApi()` turns `_id` into a string `id` and hides `order`, so the frontend never sees Mongo types. `parseId()` turns malformed ids into 404s.
+**Data model** (`src/db.js`): collections `projects`, `skills` (one document per skill group), `commands` (custom Terminal commands, unique `name`), `messages` (contact form; admin-only), `uploads` (admin-uploaded images, served publicly by `GET /api/uploads/:id` and linked by absolute URL so they work from another domain) and `settings`, which holds single documents with string ids: `profile`, `tools` (`{ tools: [] }`) and `meta` (`updatedAt`, bumped by `touch()` after every write). Projects and skill groups carry an internal `order` field. `toApi()` turns `_id` into a string `id` and hides `order`, so the frontend never sees Mongo types. `parseId()` turns malformed ids into 404s.
 
 **Seeding** (`src/seed.js`) runs only when there's no `profile` document. It imports content from the old JSON store `server/data/db.json` if present, otherwise from `src/data.js`.
 
@@ -60,6 +60,10 @@ The database name comes from the URI path; if the URI has none (typical for Atla
 - **Routes:** public `GET`s for `/api/portfolio` (includes `commands`), `/api/profile`, `/api/projects`, `/api/skills`, `/api/tools`, `/api/commands` and `/api/events` (SSE). Projects, skill groups and commands use `collectionRouter(collection, schema)` in `routes/content.js`: list/get/create/`PUT` replace/`PATCH` merge/delete, plus `POST /reorder` with `{ ids }`, which rewrites `order` in one `bulkWrite`. `/api/messages` (`routes/messages.js`): `POST` is public and rate-limited (5 per 10 minutes per IP, `src/rateLimit.js`; set `TRUST_PROXY` behind a proxy), while `GET`/`PATCH {read}`/`DELETE` are admin-only.
 - **Writes are protected by default:** a guard in `index.js` runs `requireAuth` on every non-GET `/api` request unless it's in `PUBLIC_WRITES` (only `POST /api/messages`). Routers still call `requireAuth` themselves; it skips re-verifying when `req.user` is already set. Mongo duplicate-key errors (code 11000) become 422 `{ field: 'is already used' }`.
 - **Validation:** every write goes through `validate(schema, body)` with the schemas in `src/schemas.js`. Unknown fields are dropped. Failures return 422 with `details` keyed by field, which the admin forms show inline. Only schema keys are ever written, so request bodies can't inject Mongo operators or extra fields. URLs must be http(s) or a root-relative path.
+
+## Deployment
+
+The site is on Vercel (static `dist/`, SPA rewrite in `vercel.json`); the API runs separately on Render (`render.yaml`, `rootDir: server`) against MongoDB Atlas. Vercel builds with `VITE_API_URL` set to the Render URL, and the API's `CORS_ORIGIN` lists the site's domains. Render's free tier sleeps when idle, so the first request can take ~50s; the portfolio shows the bundled `data.js` meanwhile. Nothing may be stored on the Render disk (it's wiped on restart), which is why uploads live in MongoDB.
 
 ## Routing
 

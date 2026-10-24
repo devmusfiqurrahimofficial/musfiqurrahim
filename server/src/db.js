@@ -27,6 +27,8 @@ export const skills = () => database.collection('skills')
 export const commands = () => database.collection('commands')
 // Contact form submissions: { name, email, message, read, createdAt }. Admin-only.
 export const messages = () => database.collection('messages')
+// Images uploaded from the admin: { contentType, data, createdAt }, served by /api/uploads/:id.
+export const uploads = () => database.collection('uploads')
 // Single documents keyed by name: 'profile', 'tools', 'meta'.
 export const settings = () => database.collection('settings')
 
