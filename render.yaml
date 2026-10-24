@@ -14,9 +14,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: 22
+        value: "22"
       - key: TRUST_PROXY
-        value: 1
+        value: "1"
       - key: FIREBASE_PROJECT_ID
         value: portfolio-c26b1
       - key: CORS_ORIGIN
