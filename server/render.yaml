@@ -1,0 +1,35 @@
+# Render blueprint for the API (server/). The site itself is on Vercel and reaches this
+# through VITE_API_URL. Values marked sync: false are entered in the Render dashboard.
+services:
+  - type: web
+    name: musfiqurrahim-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: node src/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: FIREBASE_PROJECT_ID
+        value: portfolio-c26b1
+      - key: CORS_ORIGIN
+        value: https://www.musfiqurrahim.dev,https://musfiqurrahim.dev
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
