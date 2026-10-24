@@ -63,7 +63,7 @@ The database name comes from the URI path; if the URI has none (typical for Atla
 
 ## Routing
 
-One page (`index.html`) and one React Router app, set up in `src/main.jsx`: `/` is the portfolio (wrapped in `PortfolioProvider`), `/admin/*` lazy-loads `src/admin/AdminApp.jsx` (so Firebase never reaches visitors), and anything else redirects to `/`. The portfolio itself has no routes; its windows are state, not URLs. Because paths like `/admin/projects` must load `index.html`, the Express server falls back to it for any GET without a file extension (Vite's dev and preview servers already do this). A static host needs the same rewrite.
+One page (`index.html`) and one React Router app, set up in `src/main.jsx`: `/` is the portfolio (wrapped in `PortfolioProvider`), `/admin/*` lazy-loads `src/admin/AdminApp.jsx` (so Firebase never reaches visitors), and anything else redirects to `/`. The portfolio itself has no routes; its windows are state, not URLs. Because paths like `/admin/projects` must load `index.html`, the Express server falls back to it for any GET without a file extension (Vite's dev and preview servers already do this). A static host needs the same rewrite; for Vercel it's in `vercel.json`, which also skips `/api/` and sends the admin's `noindex` header.
 
 ## Admin panel (`src/admin/`)
 
