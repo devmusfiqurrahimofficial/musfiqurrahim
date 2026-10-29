@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { requireAuth } from '../auth.js'
-import { messages, parseId, toApi } from '../db.js'
-import { rateLimit } from '../rateLimit.js'
-import { messageSchema, messageUpdateSchema } from '../schemas.js'
-import { HttpError, validate } from '../validation.js'
+import { requireAuth } from '../middleware/auth.js'
+import { messages, parseId, toApi } from '../db/index.js'
+import { rateLimit } from '../middleware/rateLimit.js'
+import { messageSchema, messageUpdateSchema } from '../models/schemas.js'
+import { HttpError, validate } from '../utils/validation.js'
 
 // Visitors may send; only the admin may read, mark or delete.
 export function messagesRouter() {

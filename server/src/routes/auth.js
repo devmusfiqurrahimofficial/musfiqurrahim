@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAuth } from '../auth.js'
+import { requireAuth } from '../middleware/auth.js'
 
 // Signing in happens in the browser with Firebase. This only tells the admin panel
 // whether the signed-in Firebase account is allowed in.

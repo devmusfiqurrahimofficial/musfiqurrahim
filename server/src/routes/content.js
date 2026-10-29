@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { requireAuth } from '../auth.js'
-import { commands, parseId, projects, settings, skills, toApi, touch } from '../db.js'
-import { profileSchema, toolsSchema } from '../schemas.js'
-import { HttpError, validate } from '../validation.js'
+import { requireAuth } from '../middleware/auth.js'
+import { commands, parseId, projects, settings, skills, toApi, touch } from '../db/index.js'
+import { profileSchema, toolsSchema } from '../models/schemas.js'
+import { HttpError, validate } from '../utils/validation.js'
 
 const withoutId = ({ _id, ...rest }) => rest
 const sorted = (collection) => collection().find().sort({ order: 1, _id: 1 }).toArray()
