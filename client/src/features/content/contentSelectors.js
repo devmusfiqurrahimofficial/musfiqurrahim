@@ -8,7 +8,10 @@ const BUNDLED = { profile, projects, skills, tools, commands: [] }
 export const selectContent = (state) => state.content.data ?? BUNDLED
 
 export const selectProfile = (state) => selectContent(state).profile
-export const selectProjects = (state) => selectContent(state).projects
+// Skips documents without a name (e.g. ones another app wrote to the same collection), which would crash previewOf().
+export const selectProjects = createSelector([(state) => selectContent(state).projects], (list) =>
+  list.filter((p) => typeof p.name === 'string' && p.name)
+)
 export const selectSkills = (state) => selectContent(state).skills
 export const selectTools = (state) => selectContent(state).tools
 export const selectCommands = (state) => selectContent(state).commands

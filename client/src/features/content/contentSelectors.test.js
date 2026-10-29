@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { profile as bundledProfile } from '../../data.js'
 import { contentSlice } from './contentSlice.js'
 import { fetchPortfolio } from './contentThunks.js'
-import { selectCommands, selectProfile, selectProjectCategories, selectProjectsInCategory, selectSiteTitle } from './contentSelectors.js'
+import { selectCommands, selectProfile, selectProjectCategories, selectProjects, selectProjectsInCategory, selectSiteTitle } from './contentSelectors.js'
 
 const project = (name, category) => ({ id: name, name, category, tags: [] })
 const apiContent = {
@@ -37,6 +37,13 @@ describe('content', () => {
     expect(selectSiteTitle(withContent(apiContent))).toBe('Ada Lovelace — Portfolio')
   })
 
+  it('skips projects without a name', () => {
+    const foreign = { id: 'x', title: 'ShopSphere', category: 'React' }
+    const state = withContent({ ...apiContent, projects: [foreign, ...apiContent.projects] })
+    expect(selectProjects(state).map((p) => p.name)).toEqual(['A', 'B', 'C'])
+    expect(selectProjectCategories(state)[0]).toEqual({ name: 'All', count: 3 })
+  })
+
   it('counts categories in first-seen order', () => {
     expect(selectProjectCategories(withContent(apiContent))).toEqual([
       { name: 'All', count: 3 },
@@ -50,6 +57,6 @@ describe('content', () => {
     const react = selectProjectsInCategory(state, 'React')
     expect(react.map((p) => p.name)).toEqual(['A', 'C'])
     expect(selectProjectsInCategory(state, 'React')).toBe(react)
-    expect(selectProjectsInCategory(state, 'All')).toBe(apiContent.projects)
+    expect(selectProjectsInCategory(state, 'All')).toBe(selectProjects(state))
   })
 })
