@@ -40,7 +40,5 @@ export const config = {
   mongoUri,
   // Atlas URIs usually end in "/" with no database name, where the driver would fall back to "test".
   mongoDbName: process.env.MONGODB_DB || (/^mongodb(\+srv)?:\/\/[^/]+\/[^/?]+/.test(mongoUri) ? undefined : 'portfolio'),
-  // The pre-MongoDB JSON store; imported once if the database starts empty.
-  legacyDataFile: path.resolve(serverRoot, 'data/db.json'),
   distDir: path.resolve(serverRoot, '../client/dist'),
 }

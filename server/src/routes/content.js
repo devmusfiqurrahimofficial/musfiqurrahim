@@ -5,6 +5,9 @@ import { profileSchema, toolsSchema } from '../models/schemas.js'
 import { HttpError, validate } from '../utils/validation.js'
 
 const withoutId = ({ _id, ...rest }) => rest
+// Until the profile is first saved in the admin, the site gets the shape it renders lists from.
+const EMPTY_PROFILE = { name: '', bio: [], stats: [], socials: {} }
+const profileOf = (doc) => ({ ...EMPTY_PROFILE, ...(doc && withoutId(doc)) })
 const sorted = (collection) => collection().find().sort({ order: 1, _id: 1 }).toArray()
 
 // Everything the public site needs, in one request.
@@ -20,7 +23,7 @@ export function portfolioRouter() {
       settings().findOne({ _id: 'meta' }),
     ])
     res.json({
-      profile: withoutId(profile ?? {}),
+      profile: profileOf(profile),
       projects: projectList.map(toApi),
       skills: skillList.map(toApi),
       commands: commandList.map(toApi),
@@ -33,7 +36,7 @@ export function portfolioRouter() {
 
 export function profileRouter() {
   const router = Router()
-  router.get('/', async (req, res) => res.json(withoutId((await settings().findOne({ _id: 'profile' })) ?? {})))
+  router.get('/', async (req, res) => res.json(profileOf(await settings().findOne({ _id: 'profile' }))))
   router.put('/', requireAuth, async (req, res) => {
     const profile = validate(profileSchema, req.body)
     await settings().replaceOne({ _id: 'profile' }, profile, { upsert: true })

@@ -7,7 +7,6 @@ import { requireAuth } from './middleware/auth.js'
 import { rateLimit } from './middleware/rateLimit.js'
 import { closeDb, commands, connectDb, pingDb, projects, skills } from './db/index.js'
 import { eventsHandler } from './services/events.js'
-import { seedIfEmpty } from './db/seed.js'
 import { HttpError } from './utils/validation.js'
 import { commandSchema, projectSchema, skillGroupSchema } from './models/schemas.js'
 import authRouter from './routes/auth.js'
@@ -23,7 +22,6 @@ try {
   console.error('[db] Start MongoDB or set MONGODB_URI in server/.env.')
   process.exit(1)
 }
-await seedIfEmpty()
 
 const app = express()
 app.disable('x-powered-by')

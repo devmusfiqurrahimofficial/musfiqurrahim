@@ -1,4 +1,4 @@
-// Fallback content and first-run seed. The live site's content is in MongoDB; edit it in the admin.
+// Fallback content shown until the API has answered. The live site's content is in MongoDB; edit it in the admin.
 
 // Live-site preview images live in public/projects/ — regenerate with `npm run screenshots`.
 export const previewOf = (project) => `/projects/${project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}.webp`
