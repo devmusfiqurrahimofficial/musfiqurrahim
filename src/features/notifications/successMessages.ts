@@ -1,0 +1,16 @@
+export const SUCCESS_MESSAGES: Record<string, string | ((arg: any, result?: any) => string | null)> = {
+  saveProject: (body: any) => (body.id ? 'Project saved' : 'Project created'),
+  deleteProject: 'Project deleted',
+  reorderProjects: 'Order saved',
+  saveSkillGroup: (body: any) => (body.id ? `${body.group} saved` : null),
+  deleteSkillGroup: 'Group deleted',
+  saveCommand: (body: any) => (body.id ? 'Command saved' : 'Command added'),
+  deleteCommand: 'Command deleted',
+  updateProfile: 'Profile saved',
+  updateTools: 'Tools saved',
+  deleteMessage: 'Message deleted',
+  sendMail: (_: any, result: any) => `Email sent to ${result?.to}`,
+  'uploads/uploadImage': 'Image uploaded',
+  'auth/sendPasswordReset': (email: any) => `Reset link sent to ${email}`,
+  'auth/copyUid': 'UID copied',
+}
