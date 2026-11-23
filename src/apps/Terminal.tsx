@@ -28,6 +28,7 @@ function run(input: string, open: (id: WindowId) => void, { profile, projects, s
         '  skills        what I work with',
         '  projects      things I have built',
         '  contact       how to reach me',
+        '  resume        open resume in a new tab',
         '  open <app>    open a window (about, projects, skills, contact)',
         '  ls            list desktop',
         '  date          print the date',
@@ -51,6 +52,11 @@ function run(input: string, open: (id: WindowId) => void, { profile, projects, s
         `github    ${profile.socials?.github}`,
         `linkedin  ${profile.socials?.linkedin}`,
       ]
+    case 'resume': {
+      const url = profile.resumeUrl || '/resume.pdf'
+      if (typeof window !== 'undefined') window.open(url, '_blank', 'noopener,noreferrer')
+      return [`Opening resume: ${url}`]
+    }
     case 'ls':
       return [APP_IDS.map((a) => `${a}.app`).join('   ')]
     case 'date':

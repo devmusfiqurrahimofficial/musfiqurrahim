@@ -18,6 +18,7 @@ export interface Profile {
   email?: string
   socials?: ProfileSocials
   image?: string
+  resumeUrl?: string
   siteTitle?: string
   contactTitle?: string
   contactText?: string

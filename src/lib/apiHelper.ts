@@ -5,9 +5,12 @@ import { parseId, toApi, touch } from './db'
 import { logger } from './logger'
 import { HttpError, validate } from './validation'
 
+// Errors must never be cached, or a browser keeps showing it after the cause is fixed.
+const NO_STORE = { 'Cache-Control': 'no-store' }
+
 export function handleApiError(err: unknown) {
   if (err instanceof HttpError) {
-    return NextResponse.json({ error: err.message, details: err.details }, { status: err.status })
+    return NextResponse.json({ error: err.message, details: err.details }, { status: err.status, headers: NO_STORE })
   }
   const e = err as { code?: number | string; keyPattern?: Record<string, unknown>; message?: string }
   // Mongo unique index violation (e.g. unique command name)
@@ -15,11 +18,11 @@ export function handleApiError(err: unknown) {
     const field = Object.keys(e.keyPattern ?? {})[0] ?? 'value'
     return NextResponse.json(
       { error: 'Some fields need fixing', details: { [field]: 'is already used' } },
-      { status: 422 }
+      { status: 422, headers: NO_STORE }
     )
   }
   logger.error({ err }, 'API execution failure')
-  return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+  return NextResponse.json({ error: 'Something went wrong' }, { status: 500, headers: NO_STORE })
 }
 
 export async function sorted(collectionFn: () => Promise<Collection<Document>>) {

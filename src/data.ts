@@ -235,6 +235,7 @@ export const profile: Profile = {
     linkedin: 'https://www.linkedin.com/in/musfiqur-rahim',
   },
   image: '/profile.jpg',
+  resumeUrl: '/resume.pdf',
 }
 
 export const skills: SkillGroup[] = [

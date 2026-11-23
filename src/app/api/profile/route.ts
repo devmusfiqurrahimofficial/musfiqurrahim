@@ -4,16 +4,19 @@ import { settings, touch } from '@/lib/db'
 import { handleApiError } from '@/lib/apiHelper'
 import { profileSchema } from '@/lib/schemas'
 import { validate } from '@/lib/validation'
+import { profile as defaultProfile } from '@/data'
 import type { Profile } from '@/types/models'
-
-const EMPTY_PROFILE: Profile = { name: '', bio: [], stats: [], socials: {} }
 
 export async function GET() {
   try {
     const settingsColl = await settings()
     const doc = await settingsColl.findOne({ _id: 'profile' as any })
+    if (!doc) {
+      return NextResponse.json(defaultProfile)
+    }
     const { _id: _pId, ...profileData } = (doc as any) || {}
-    return NextResponse.json({ ...EMPTY_PROFILE, ...profileData })
+    const profile: Profile = { ...defaultProfile, ...profileData }
+    return NextResponse.json(profile)
   } catch (err) {
     return handleApiError(err)
   }

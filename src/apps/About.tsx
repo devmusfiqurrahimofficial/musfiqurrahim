@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Briefcase, MapPin } from 'lucide-react'
+import { Briefcase, ExternalLink, FileText, MapPin } from 'lucide-react'
 import Lightbox from '@/components/Lightbox'
 import { selectProfile } from '@/features/content/contentSelectors'
 import { openApp } from '@/features/windows/windowsThunks'
@@ -16,6 +16,8 @@ export default function About() {
     .split(' ')
     .map((w) => w[0])
     .join('')
+
+  const resumeUrl = profile.resumeUrl || '/resume.pdf'
 
   return (
     <div className="scroll-thin h-full overflow-y-auto">
@@ -67,16 +69,27 @@ export default function About() {
           ))}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <a
+            href={resumeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Resume in new tab"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-emerald-600 hover:to-teal-700 hover:shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+          >
+            <FileText className="h-4 w-4" />
+            <span>Resume</span>
+            <ExternalLink className="h-3 w-3 opacity-80" />
+          </a>
           <button
             onClick={() => dispatch(openApp('projects'))}
-            className="rounded-full bg-sky-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-sky-600"
+            className="rounded-full bg-sky-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-sky-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
           >
             View projects
           </button>
           <button
             onClick={() => dispatch(openApp('contact'))}
-            className="rounded-full border border-white/70 bg-white/60 px-4 py-2 text-sm font-medium text-sky-700 transition hover:bg-white/90 dark:border-white/15 dark:bg-white/10 dark:text-sky-300 dark:hover:bg-white/15"
+            className="rounded-full border border-white/70 bg-white/60 px-4 py-2 text-sm font-medium text-sky-700 transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:border-white/15 dark:bg-white/10 dark:text-sky-300 dark:hover:bg-white/15"
           >
             Get in touch
           </button>

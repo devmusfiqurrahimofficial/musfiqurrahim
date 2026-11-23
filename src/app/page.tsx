@@ -5,8 +5,9 @@ import { APPS, appById } from '@/apps/registry'
 import Dock from '@/components/Dock'
 import MenuBar from '@/components/MenuBar'
 import Window from '@/components/Window'
+import WhatsAppButton from '@/components/WhatsAppButton'
 import { selectSiteTitle } from '@/features/content/contentSelectors'
-import { selectIsMobile } from '@/features/ui/uiSlice'
+import { useIsMobile } from '@/features/ui/useIsMobile'
 import { DESKTOP_ICONS } from '@/features/windows/appList'
 import { selectWindowEntities } from '@/features/windows/windowsSelectors'
 import { allWindowsClosed } from '@/features/windows/windowsSlice'
@@ -25,7 +26,7 @@ function Wallpaper() {
 
 function DesktopIcons() {
   const dispatch = useAppDispatch()
-  const isMobile = useAppSelector(selectIsMobile)
+  const isMobile = useIsMobile()
   return (
     <div className="absolute top-10 right-4 flex flex-col gap-4">
       {DESKTOP_ICONS.map((id) => {
@@ -99,6 +100,7 @@ export default function Home() {
       )}
 
       <Dock />
+      <WhatsAppButton />
     </main>
   )
 }

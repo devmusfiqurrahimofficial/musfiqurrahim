@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, type ComponentType } from 'react'
 import { Trash2 } from 'lucide-react'
 import { APPS } from '@/apps/registry'
 import { selectProfile } from '@/features/content/contentSelectors'
-import { selectIsMobile } from '@/features/ui/uiSlice'
+import { useIsMobile } from '@/features/ui/useIsMobile'
 import { selectBouncing, selectWindowEntities } from '@/features/windows/windowsSelectors'
 import { openApp } from '@/features/windows/windowsThunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -78,7 +78,7 @@ export default function Dock() {
   const dispatch = useAppDispatch()
   const windows = useAppSelector(selectWindowEntities)
   const bouncing = useAppSelector(selectBouncing)
-  const compact = useAppSelector(selectIsMobile)
+  const compact = useIsMobile()
   const profile = useAppSelector(selectProfile)
   const links = useMemo(() => linksFor(profile), [profile])
   const [mouseX, setMouseX] = useState<number | null>(null)

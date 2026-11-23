@@ -112,11 +112,14 @@ export async function pruneUploads() {
   try {
     const [settingsColl, projectsColl, uploadsColl] = await Promise.all([settings(), projects(), uploads()])
     const [profile, projectList] = await Promise.all([
-      settingsColl.findOne({ _id: 'profile' as unknown as ObjectId }, { projection: { image: 1 } }),
+      settingsColl.findOne({ _id: 'profile' as unknown as ObjectId }, { projection: { image: 1, resumeUrl: 1 } }),
       projectsColl.find({}, { projection: { image: 1 } }).toArray(),
     ])
-    const inUse = [profile, ...projectList]
-      .map((doc) => uploadIdIn(doc?.image))
+    const inUse = [
+      uploadIdIn((profile as any)?.image),
+      uploadIdIn((profile as any)?.resumeUrl),
+      ...projectList.map((doc) => uploadIdIn(doc?.image)),
+    ]
       .filter((id): id is string => Boolean(id))
       .map((id) => new ObjectId(id))
 

@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Plus, Trash2, Upload } from 'lucide-react'
+import { ExternalLink, FileText, Plus, Trash2, Upload } from 'lucide-react'
 import { CONTACT_TEXT, CONTACT_TITLE, TOOLS_TITLE } from '@/config/siteText'
 import { errorDetails } from '@/features/api/apiErrors'
 import { useGetProfileQuery, useUpdateProfileMutation } from '@/features/profile/profileApi'
-import { uploadImage } from '@/features/uploads/uploadsThunks'
+import { uploadImage, uploadResume } from '@/features/uploads/uploadsThunks'
 import { useAppDispatch } from '@/store/hooks'
 import type { Profile } from '@/types/models'
 import { Button, ErrorState, Field, Input, Loading, PageHeader, Panel, TextArea } from '../ui'
@@ -19,6 +19,7 @@ const EMPTY: Profile = {
   stats: [],
   socials: { github: '', linkedin: '' },
   image: '',
+  resumeUrl: '',
   siteTitle: '',
   contactTitle: '',
   contactText: '',
@@ -61,7 +62,8 @@ export default function ProfilePage() {
   const { data, error, isLoading, refetch } = useGetProfileQuery()
   const [updateProfile, { isLoading: busy, error: saveError }] = useUpdateProfileMutation()
   const [form, setForm] = useState<Profile>(EMPTY)
-  const [uploading, setUploading] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingResume, setUploadingResume] = useState(false)
   const errors = errorDetails(saveError)
 
   useEffect(() => {
@@ -95,10 +97,20 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
-    setUploading(true)
+    setUploadingImage(true)
     const result = await dispatch(uploadImage(file))
-    setUploading(false)
+    setUploadingImage(false)
     if (uploadImage.fulfilled.match(result)) setForm((f) => ({ ...f, image: result.payload }))
+  }
+
+  const handleResumeChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploadingResume(true)
+    const result = await dispatch(uploadResume(file))
+    setUploadingResume(false)
+    if (uploadResume.fulfilled.match(result)) setForm((f) => ({ ...f, resumeUrl: result.payload }))
   }
 
   const save = (e: FormEvent) => {
@@ -126,22 +138,100 @@ export default function ProfilePage() {
       />
 
       <div className="space-y-4">
-        <Section title="Basics">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <Section title="Media & Resume" description="Manage your avatar and downloadable resume/CV stored in MongoDB.">
+          <div className="grid gap-6 sm:grid-cols-2">
             <Field
-              label="Profile image"
-              hint="JPG, PNG, WEBP or GIF, up to 50 MB. Photos are kept at up to 4K and converted to WebP; GIFs must be under 10 MB."
+              label="Profile Picture"
+              hint="JPG, PNG, WEBP, or GIF. Upload a new photo or provide an image URL. Stored in MongoDB."
+              error={errors.image}
             >
-              <div className="flex items-center gap-4">
-                {form.image && (
-                  <img src={form.image} alt="" className="h-14 w-14 rounded-full object-cover ring-1 ring-white/60" />
-                )}
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white/55 px-3 py-2 text-xs font-medium text-slate-700 ring-1 ring-white/70 hover:bg-white/80 dark:bg-white/10 dark:text-slate-100 dark:ring-white/10">
-                  <Upload className="h-3.5 w-3.5" /> {uploading ? 'Uploading…' : 'Upload photo'}
-                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  {form.image ? (
+                    <img src={form.image} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-sky-500/40" />
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-blue-600 text-xl font-bold text-white shadow-inner">
+                      {form.name
+                        ? form.name
+                            .split(' ')
+                            .map((w) => w[0])
+                            .join('')
+                        : '?'}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-sky-500 px-3.5 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-sky-600 focus-within:ring-2 focus-within:ring-sky-500">
+                      <Upload className="h-3.5 w-3.5" /> {uploadingImage ? 'Uploading…' : 'Upload photo'}
+                      <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                    </label>
+                    {form.image && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setForm((f) => ({ ...f, image: '' }))}
+                        className="text-xs text-rose-500 hover:text-rose-600"
+                      >
+                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Remove
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <Input
+                  value={form.image || ''}
+                  onChange={set('image')}
+                  placeholder="https://... or /api/uploads/..."
+                  className="text-xs"
+                />
               </div>
             </Field>
+
+            <Field
+              label="Resume / CV"
+              hint="Upload a PDF document (up to 15 MB) or paste a public resume link (e.g. Google Drive, CDN). Opens in a new tab from the About window."
+              error={errors.resumeUrl}
+            >
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-emerald-700 focus-within:ring-2 focus-within:ring-emerald-500">
+                    <Upload className="h-3.5 w-3.5" /> {uploadingResume ? 'Uploading resume…' : 'Upload PDF resume'}
+                    <input type="file" accept=".pdf,application/pdf" onChange={handleResumeChange} className="hidden" />
+                  </label>
+                  {form.resumeUrl && (
+                    <>
+                      <a
+                        href={form.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-950/30 dark:text-emerald-400 dark:hover:bg-emerald-950/50"
+                      >
+                        <FileText className="h-3.5 w-3.5" /> Preview <ExternalLink className="h-3 w-3" />
+                      </a>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setForm((f) => ({ ...f, resumeUrl: '' }))}
+                        className="text-xs text-rose-500 hover:text-rose-600"
+                      >
+                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Remove
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <Input
+                  value={form.resumeUrl || ''}
+                  onChange={set('resumeUrl')}
+                  placeholder="https://... or /api/uploads/..."
+                  className="text-xs"
+                />
+              </div>
+            </Field>
+          </div>
+        </Section>
+
+        <Section title="Basics">
+          <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name" error={errors.name}>
               <Input value={form.name} onChange={set('name')} invalid={!!errors.name} required />
             </Field>

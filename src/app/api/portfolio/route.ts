@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server'
 import { commands, projects, settings, skills, toApi } from '@/lib/db'
 import { handleApiError, sorted } from '@/lib/apiHelper'
+import { logger } from '@/lib/logger'
+import {
+  profile as defaultProfile,
+  projects as defaultProjects,
+  skills as defaultSkills,
+  tools as defaultTools,
+} from '@/data'
 import type { Profile } from '@/types/models'
-
-const EMPTY_PROFILE: Profile = { name: '', bio: [], stats: [], socials: {} }
 
 export async function GET() {
   try {
@@ -18,7 +23,7 @@ export async function GET() {
     ])
 
     const { _id: _pId, ...profileData } = (profileDoc as any) || {}
-    const profile: Profile = { ...EMPTY_PROFILE, ...profileData }
+    const profile: Profile = profileDoc ? { ...defaultProfile, ...profileData } : defaultProfile
 
     return NextResponse.json(
       {
@@ -26,7 +31,7 @@ export async function GET() {
         projects: projectList.map(toApi),
         skills: skillList.map(toApi),
         commands: commandList.map(toApi),
-        tools: (toolsDoc as any)?.tools ?? [],
+        tools: (toolsDoc as any)?.tools ?? defaultTools,
         updatedAt: (metaDoc as any)?.updatedAt ?? null,
       },
       {
@@ -36,6 +41,21 @@ export async function GET() {
       }
     )
   } catch (err) {
-    return handleApiError(err)
+    logger.warn({ err }, '[api/portfolio] Database unavailable, serving bundled default data')
+    return NextResponse.json(
+      {
+        profile: defaultProfile,
+        projects: defaultProjects,
+        skills: defaultSkills,
+        commands: [],
+        tools: defaultTools,
+        updatedAt: null,
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      }
+    )
   }
 }

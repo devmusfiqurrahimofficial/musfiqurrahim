@@ -8,6 +8,7 @@ export const RESERVED_COMMANDS = [
   'skills',
   'projects',
   'contact',
+  'resume',
   'ls',
   'date',
   'echo',
@@ -65,6 +66,7 @@ export const profileSchema = z.object({
     })
     .default({ github: '', linkedin: '' }),
   image: safeUrlSchema.optional().or(z.literal('')).default(''),
+  resumeUrl: safeUrlSchema.optional().or(z.literal('')).default(''),
   siteTitle: z.string().trim().max(120).optional().or(z.literal('')).default(''),
   contactTitle: z.string().trim().max(60).optional().or(z.literal('')).default(''),
   contactText: z.string().trim().max(300).optional().or(z.literal('')).default(''),

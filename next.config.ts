@@ -10,16 +10,16 @@ const ContentSecurityPolicy = `
   font-src 'self' https://fonts.gstatic.com data:;
   connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com https://fonts.googleapis.com https://fonts.gstatic.com;
   frame-src 'self' https://*.firebaseapp.com;
-  frame-ancestors 'none';
+  frame-ancestors 'self' https://*.firebaseapp.com;
   form-action 'self';
   base-uri 'self';
-  object-src 'none';
+  object-src 'self' blob:;
 `.replace(/\s{2,}/g, ' ').trim()
 
 const securityHeaders = [
   { key: 'Content-Security-Policy', value: ContentSecurityPolicy },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()' },
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
@@ -43,6 +43,22 @@ const nextConfig: NextConfig = {
       {
         source: '/((?!_next/static|_next/image|favicon.ico).*)',
         headers: securityHeaders,
+      },
+      {
+        source: '/resume.pdf',
+        headers: [
+          { key: 'Content-Type', value: 'application/pdf' },
+          { key: 'Content-Disposition', value: 'inline; filename="resume.pdf"' },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+        ],
+      },
+      {
+        source: '/api/uploads/:path*',
+        headers: [
+          { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
+          // No Cache-Control here: it would also apply to 404/500 responses and make browsers keep
+          // the error for a year. uploadHelper sets long-lived caching on successful file responses only.
+        ],
       },
       {
         source: '/admin/:path*',

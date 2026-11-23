@@ -20,3 +20,15 @@ export const uploadImage = createAsyncThunk<string, File>('uploads/uploadImage',
   if (result.error) return rejectWithValue(fail(errorMessage(result.error)))
   return (result.data as { url: string }).url
 })
+
+export const uploadResume = createAsyncThunk<string, File>('uploads/uploadResume', async (file, { dispatch, rejectWithValue }) => {
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+  if (!isPdf) return rejectWithValue(fail('Only PDF documents are allowed for resume.'))
+  if (file.size > 15 * 1024 * 1024) return rejectWithValue(fail('Resume must be under 15 MB.'))
+
+  const formData = new FormData()
+  formData.append('file', file)
+  const result = await dispatch(uploadsApi.endpoints.uploadFile.initiate(formData))
+  if (result.error) return rejectWithValue(fail(errorMessage(result.error)))
+  return (result.data as { url: string }).url
+})

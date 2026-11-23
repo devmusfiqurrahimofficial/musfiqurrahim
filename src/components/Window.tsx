@@ -2,7 +2,7 @@
 
 import { useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { appById } from '@/apps/registry'
-import { selectIsMobile } from '@/features/ui/uiSlice'
+import { useIsMobile } from '@/features/ui/useIsMobile'
 import { DOCK_SPACE, MENU_H } from '@/features/windows/layout'
 import { selectActiveId, selectWindowById } from '@/features/windows/windowsSelectors'
 import {
@@ -74,7 +74,7 @@ export default function Window({ id, children }: { id: WindowId; children: React
   const app = appById(id)
   const win = useAppSelector((state) => selectWindowById(state, id))
   const active = useAppSelector((state) => selectActiveId(state) === id)
-  const isMobile = useAppSelector(selectIsMobile)
+  const isMobile = useIsMobile()
   const drag = useRef<{ dx: number; dy: number } | null>(null)
   const [dragging, setDragging] = useState(false)
   const [closing, setClosing] = useState(false)

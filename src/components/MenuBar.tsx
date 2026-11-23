@@ -10,11 +10,14 @@ import { allWindowsClosed } from '@/features/windows/windowsSlice'
 import { closeActiveWindow, minimizeActiveWindow, openApp } from '@/features/windows/windowsThunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import type { WindowId } from '@/types/window'
+import { useHydrated } from '@/lib/useHydrated'
 import { MonogramLogo } from './BrandIcons'
 
 function useClock() {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
+    // Replace the server-rendered time (server timezone) right after hydration.
+    setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 1000 * 15)
     return () => clearInterval(id)
   }, [])
@@ -79,6 +82,8 @@ export default function MenuBar() {
   const dispatch = useAppDispatch()
   const activeTitle = useAppSelector(selectActiveTitle)
   const dark = useAppSelector(selectIsDark)
+  // Persisted theme is only known on the client; keep the first render equal to the server's.
+  const hydrated = useHydrated()
   const now = useClock()
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const ref = useRef<HTMLElement>(null)
@@ -147,11 +152,14 @@ export default function MenuBar() {
       <div className="flex items-center gap-3 pr-2 text-[13px]">
         <button
           onClick={() => dispatch(themeToggled(dark))}
-          aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={dark ? 'Light mode' : 'Dark mode'}
+          aria-label={dark && hydrated ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={dark && hydrated ? 'Light mode' : 'Dark mode'}
           className="-mx-1 flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/35 dark:hover:bg-white/10"
         >
-          {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          {/* Icons follow the `dark` class that /theme.js sets on <html> before paint,
+              so they are correct on first paint and identical in server and client HTML. */}
+          <Sun aria-hidden className="hidden h-3.5 w-3.5 dark:block" />
+          <Moon aria-hidden className="h-3.5 w-3.5 dark:hidden" />
         </button>
         <BatteryFull className="hidden h-4 w-4 sm:block" />
         <Wifi className="h-3.5 w-3.5" />
