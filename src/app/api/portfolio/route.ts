@@ -8,6 +8,7 @@ import {
   skills as defaultSkills,
   tools as defaultTools,
 } from '@/data'
+import { normalizeProfileUrls } from '@/lib/uploadUrl'
 import type { Profile } from '@/types/models'
 
 export async function GET() {
@@ -23,7 +24,7 @@ export async function GET() {
     ])
 
     const { _id: _pId, ...profileData } = (profileDoc as any) || {}
-    const profile: Profile = profileDoc ? { ...defaultProfile, ...profileData } : defaultProfile
+    const profile: Profile = normalizeProfileUrls(profileDoc ? { ...defaultProfile, ...profileData } : defaultProfile)
 
     return NextResponse.json(
       {

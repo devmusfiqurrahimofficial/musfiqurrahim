@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth'
 import { settings, touch } from '@/lib/db'
 import { handleApiError } from '@/lib/apiHelper'
 import { profileSchema } from '@/lib/schemas'
+import { normalizeProfileUrls } from '@/lib/uploadUrl'
 import { validate } from '@/lib/validation'
 import { profile as defaultProfile } from '@/data'
 import type { Profile } from '@/types/models'
@@ -16,7 +17,7 @@ export async function GET() {
     }
     const { _id: _pId, ...profileData } = (doc as any) || {}
     const profile: Profile = { ...defaultProfile, ...profileData }
-    return NextResponse.json(profile)
+    return NextResponse.json(normalizeProfileUrls(profile))
   } catch (err) {
     return handleApiError(err)
   }

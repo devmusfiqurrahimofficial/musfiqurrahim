@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { selectContent } from '@/features/content/contentSelectors'
 import { APP_IDS } from '@/features/windows/appList'
+import { RESUME_FILENAME, resumeLink } from '@/lib/uploadUrl'
 import { openApp } from '@/features/windows/windowsThunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import type { WindowId } from '@/types/window'
@@ -28,7 +29,7 @@ function run(input: string, open: (id: WindowId) => void, { profile, projects, s
         '  skills        what I work with',
         '  projects      things I have built',
         '  contact       how to reach me',
-        '  resume        open resume in a new tab',
+        '  resume        download my resume (PDF)',
         '  open <app>    open a window (about, projects, skills, contact)',
         '  ls            list desktop',
         '  date          print the date',
@@ -53,9 +54,14 @@ function run(input: string, open: (id: WindowId) => void, { profile, projects, s
         `linkedin  ${profile.socials?.linkedin}`,
       ]
     case 'resume': {
-      const url = profile.resumeUrl || '/resume.pdf'
-      if (typeof window !== 'undefined') window.open(url, '_blank', 'noopener,noreferrer')
-      return [`Opening resume: ${url}`]
+      const { href, external } = resumeLink(profile.resumeUrl)
+      if (typeof document !== 'undefined') {
+        const a = Object.assign(document.createElement('a'), { href })
+        if (external) Object.assign(a, { target: '_blank', rel: 'noopener noreferrer' })
+        else a.download = RESUME_FILENAME
+        a.click()
+      }
+      return [external ? `Opening resume: ${href}` : 'Downloading resume…']
     }
     case 'ls':
       return [APP_IDS.map((a) => `${a}.app`).join('   ')]

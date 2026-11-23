@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { relativeUploadUrl } from './uploadUrl'
 
 export const RESERVED_COMMANDS = [
   'help',
@@ -38,6 +39,9 @@ export const safeUrlSchema = z
     }
   })
 
+// For files served from /api/uploads: stored without a host so they work on every domain.
+export const uploadUrlSchema = safeUrlSchema.transform(relativeUploadUrl)
+
 export const emailSchema = z.string().trim().email('must be a valid email').max(254).toLowerCase()
 
 export const gradientSchema = z
@@ -65,8 +69,8 @@ export const profileSchema = z.object({
       linkedin: safeUrlSchema.optional().or(z.literal('')).default(''),
     })
     .default({ github: '', linkedin: '' }),
-  image: safeUrlSchema.optional().or(z.literal('')).default(''),
-  resumeUrl: safeUrlSchema.optional().or(z.literal('')).default(''),
+  image: uploadUrlSchema.optional().or(z.literal('')).default(''),
+  resumeUrl: uploadUrlSchema.optional().or(z.literal('')).default(''),
   siteTitle: z.string().trim().max(120).optional().or(z.literal('')).default(''),
   contactTitle: z.string().trim().max(60).optional().or(z.literal('')).default(''),
   contactText: z.string().trim().max(300).optional().or(z.literal('')).default(''),
@@ -81,7 +85,7 @@ export const projectSchema = z.object({
   color: gradientSchema.optional().or(z.literal('')).default('from-sky-400 to-blue-600'),
   demo: safeUrlSchema.optional().or(z.literal('')).default(''),
   code: safeUrlSchema.optional().or(z.literal('')).default(''),
-  image: safeUrlSchema.optional().or(z.literal('')).default(''),
+  image: uploadUrlSchema.optional().or(z.literal('')).default(''),
 })
 
 export const skillGroupSchema = z.object({

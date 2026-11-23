@@ -1,9 +1,10 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Briefcase, ExternalLink, FileText, MapPin } from 'lucide-react'
+import { Briefcase, Download, ExternalLink, MapPin } from 'lucide-react'
 import Lightbox from '@/components/Lightbox'
 import { selectProfile } from '@/features/content/contentSelectors'
+import { RESUME_FILENAME, resumeLink } from '@/lib/uploadUrl'
 import { openApp } from '@/features/windows/windowsThunks'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
@@ -17,7 +18,7 @@ export default function About() {
     .map((w) => w[0])
     .join('')
 
-  const resumeUrl = profile.resumeUrl || '/resume.pdf'
+  const resume = resumeLink(profile.resumeUrl)
 
   return (
     <div className="scroll-thin h-full overflow-y-auto">
@@ -71,15 +72,14 @@ export default function About() {
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <a
-            href={resumeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open Resume in new tab"
+            href={resume.href}
+            {...(resume.external
+              ? { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Open resume (opens in a new tab)' }
+              : { download: RESUME_FILENAME, 'aria-label': 'Download resume (PDF)' })}
             className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-emerald-600 hover:to-teal-700 hover:shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
           >
-            <FileText className="h-4 w-4" />
+            {resume.external ? <ExternalLink className="h-4 w-4" /> : <Download className="h-4 w-4" />}
             <span>Resume</span>
-            <ExternalLink className="h-3 w-3 opacity-80" />
           </a>
           <button
             onClick={() => dispatch(openApp('projects'))}
